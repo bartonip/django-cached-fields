@@ -30,9 +30,9 @@ class CachedFieldMixin(object):
         type_field.contribute_to_class(cls, self.name)
 
         # Timestamp field to log when changes happen
-        last_update_field_name = "_dcf_last_update_{}".format(self.name)
-        last_update = models.DateTimeField(default=datetime.now, null=True)
-        setattr(cls, last_update_field_name, last_update)
+        last_update_field_name = "{}_last_updated".format(self.name)
+        last_update = models.DateTimeField(null=True)
+        # setattr(cls, last_update_field_name, last_update)
         last_update.contribute_to_class(cls, last_update_field_name)
 
         trigger_data = getattr(cls, "_dcf_trigger_params", {})
@@ -41,6 +41,11 @@ class CachedFieldMixin(object):
             "signals": self.signals,
             "calculation_method": self.method,
         }
+
+        cached_fields_list = getattr(cls, "_dcf_cached_fields", [])
+        cached_fields_list.append(self.name)
+        setattr(cls, '_dcf_cached_fields', cached_fields_list)
+
         setattr(cls, "_dcf_trigger_params", trigger_data)
 
         # Link Signals

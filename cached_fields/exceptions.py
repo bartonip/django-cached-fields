@@ -3,3 +3,6 @@ class CalculationMethodMissing(Exception):
 
 class CachedFieldDoesNotExist(Exception):
     pass
+
+class UnauthorisedChange(Exception):
+    pass
