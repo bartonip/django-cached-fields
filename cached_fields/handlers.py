@@ -70,6 +70,7 @@ class CachedFieldSignalHandler(object):
     @classmethod
     def propogate_signal(cls, signal, sender, instance, *args, **kwargs):
         cls.run_method(instance, cls.methods[cls.get_class(sender)])
+        
 
     @classmethod
     def run_method(cls, instance, callback):
@@ -79,7 +80,6 @@ class CachedFieldSignalHandler(object):
             If instance is either list or tuple, and its elements are of type sender, just loop through it.
             If instance is of type sender, just run the method on this instance.
         """
-        print("PERK"*9)
         callback, prefetch = callback
         if isinstance(instance, QuerySet):
             instance = instance.prefetch_related(*prefetch)
@@ -95,8 +95,7 @@ class CachedFieldSignalHandler(object):
     def execute(cls, instance, callback):
         result = callback(instance)
         instance._set_cache_value(cls.field, result)
-        print(instance._dcf_cache_values)
-        return instance
+        instance._commit_values_to_cache()
 
     def provision_signals(self):
         for class_name, signal in self.signals:

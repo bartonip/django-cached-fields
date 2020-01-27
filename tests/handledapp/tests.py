@@ -17,6 +17,17 @@ class TestCalculationOnCreate(TestCase):
 
     def test_cacheIsInitialisedWhenModelCreated(self):
         invoice = Invoice.objects.create(item=self.item, quantity=99)
+        self.assertEqual(invoice.total, 297)
+        invoice.quantity = 3
+        invoice.save()
+        self.assertEqual(invoice.total, 9)
+    
+    def test_cacheIsInitialisedWhenModelInitialisedAndSaved(self):
+        invoice = Invoice(item=self.item, quantity=99)
+        invoice.save()
+        self.assertEqual(invoice.total, 297)
+        invoice.quantity = 3
+        invoice.save()
         self.assertEqual(invoice.total, 9)
 
 

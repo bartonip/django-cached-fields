@@ -50,13 +50,10 @@ class CachedFieldsMixin(object):
         return 1
 
     def _set_cache_value(self, field, value):
-        self._dcf_cache_values[field] = value
+        setattr(self, "_dcf_cache_values", {field: value})
 
     def _commit_values_to_cache(self):
-        print("HERPLE")
-        print(self._dcf_cache_values)
-        for field, value in self._dcf_cache_values.items():
-            print(field, value)
+        for field, value in getattr(self, "_dcf_cache_values", {}).items():
             setattr(self, field, value)
             setattr(self, "{}_last_updated".format(field), datetime.now())
 
