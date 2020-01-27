@@ -1,5 +1,4 @@
 from django.forms.models import model_to_dict
-from .toolchain import CachedFieldsToolchain
 from .exceptions import UnauthorisedChange
 
 from datetime import datetime
@@ -9,7 +8,6 @@ class CachedFieldsMixin(object):
     Based off ModelDiffMixin
     """
     def __init__(self, *args, **kwargs):
-        self.cache_toolchain = CachedFieldsToolchain(self)
         super(CachedFieldsMixin, self).__init__(*args, **kwargs)
         self.__initial = self._dict
         self.__cached_fields_enabled = True
@@ -17,7 +15,7 @@ class CachedFieldsMixin(object):
     @property
     def _hot_fields(self):
         result = []
-        for k, v in self._dcf_trigger_params.items():
+        for v in self._dcf_trigger_params.values():
             result.extend(v['field_triggers'])
         return list(set(result)) 
 
@@ -51,6 +49,17 @@ class CachedFieldsMixin(object):
                 setattr(self, "{}_last_updated".format(k), datetime.now())
         return 1
 
+    def _set_cache_value(self, field, value):
+        self._dcf_cache_values[field] = value
+
+    def _commit_values_to_cache(self):
+        print("HERPLE")
+        print(self._dcf_cache_values)
+        for field, value in self._dcf_cache_values.items():
+            print(field, value)
+            setattr(self, field, value)
+            setattr(self, "{}_last_updated".format(field), datetime.now())
+
     def save(self, *args, **kwargs):
         """
         Saves model and set initial state.
@@ -66,13 +75,14 @@ class CachedFieldsMixin(object):
                     if getattr(self, field):
                         raise UnauthorisedChange("You cannot directly assign a cached field.")
             self._process_recalculation(triggered)
-        for field, value in self._dcf_cache_values.items():
-            setattr(self, field, value)
-            setattr(self, "{}_last_updated".format(field), datetime.now())
+            self._commit_values_to_cache()
 
         super(CachedFieldsMixin, self).save(*args, **kwargs)
         self.__initial = self._dict
 
+    def create(self, *args, **kwargs):
+        self._commit_values_to_cache()
+        super(CachedFieldsMixin, self).create(*args, **kwargs)
     @property
     def _dict(self):
         return model_to_dict(self, fields=[field.name for field in self._meta.fields])

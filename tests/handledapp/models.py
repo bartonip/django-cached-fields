@@ -10,4 +10,4 @@ class Item(models.Model):
 class Invoice(models.Model):
     item = models.ForeignKey(Item)
     quantity = models.IntegerField()
-    total = CachedIntegerField(InvoiceSignalHandler().as_handler())
+    total = CachedIntegerField(InvoiceSignalHandler)

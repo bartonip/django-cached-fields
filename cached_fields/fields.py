@@ -7,6 +7,9 @@ from django.utils.functional import curry
 
 from .exceptions import CalculationMethodMissing
 from .mixins import CachedFieldsMixin
+from .handlers import CachedFieldSignalHandler
+
+import types
 
 def save(self, *args, **kwargs):
     print("arse")
@@ -21,6 +24,7 @@ class CachedFieldMixin(object):
         self.timeout = timeout
         self.args = args
         self.kwargs = kwargs
+        self.externally_handled = not isinstance(method, types.FunctionType)
         super(CachedFieldMixin, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -36,19 +40,23 @@ class CachedFieldMixin(object):
         last_update = models.DateTimeField(null=True)
         # setattr(cls, last_update_field_name, last_update)
         last_update.contribute_to_class(cls, last_update_field_name)
-
-        trigger_data = getattr(cls, "_dcf_trigger_params", {})
-        trigger_data[self.name] = {
-            "field_triggers": self.field_triggers,
-            "signals": self.signals,
-            "calculation_method": self.method,
-        }
+        trigger_data = {}
+        if not self.externally_handled:
+            trigger_data = getattr(cls, "_dcf_trigger_params", {})
+            trigger_data[self.name] = {
+                "field_triggers": self.field_triggers,
+                "signals": self.signals,
+                "calculation_method": self.method,
+            }
+        else:
+            self.method(self.name, cls)
 
         cached_fields_list = getattr(cls, "_dcf_cached_fields", [])
         cached_fields_list.append(self.name)
         setattr(cls, '_dcf_cached_fields', cached_fields_list)
-
         setattr(cls, "_dcf_trigger_params", trigger_data)
+        setattr(cls, "_dcf_cache_values", {})
+
 
         # Silently inject mixin ensuring it hasn't already been injected
         if CachedFieldsMixin not in cls.__bases__:

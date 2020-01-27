@@ -8,4 +8,4 @@ class InvoiceSignalHandler(CachedFieldSignalHandler):
         return instance.item.price * instance.quantity
 
     def gherk(self):
-        print(self.methods, self.signals)
+        pass
