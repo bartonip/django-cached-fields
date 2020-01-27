@@ -1,0 +1,56 @@
+sudo: false
+language: python
+dist: xenial
+python:
+  - 3.8
+  - 3.7
+  - 3.6
+cache: pip
+env:
+  global:
+    - PYTHONWARNINGS=default,ignore::PendingDeprecationWarning,ignore::ResourceWarning
+    - DJANGO_DATABASE_USER_POSTGRES=postgres
+    - DJANGO_DATABASE_USER_MYSQL=travis
+  matrix:
+    - DJANGO='>=3.0,<3.1'
+    - DJANGO='>=2.2,<3.0'
+    - DJANGO='>=2.1,<2.2'
+    - DJANGO='>=2.0,<2.1'
+    - DJANGO='>=1.11,<1.12'
+matrix:
+  fast_finish: true
+  exclude:
+    - python: 3.8
+      env: DJANGO='>=1.11,<1.12'
+    - python: 3.7
+      env: DJANGO='>=1.11,<1.12'
+addons:
+  apt:
+    packages:
+      - libmysqlclient-dev
+services:
+  - postgresql
+  - mysql
+install:
+  - pip install --pre django$DJANGO
+before_script:
+  - mysql -e 'create database test_project'
+  - psql -c 'create database test_project;' -U postgres;
+script:
+  - flake8
+  - coverage run tests/manage.py test 
+after_success:
+  - coverage report
+deploy:
+  provider: pypi
+  user: bartonip
+  password:
+    secure: ieuHBE3I2AtUysMKQPsvBNXrxwDU0oHhe152++p1XZ1KUCb/S2ePstZDN1BmibjwL01J2x7J4tGgbPdnxRxKr9cbuY2iGt3T0sH29wwWWURuRyE6ytENuZwmfZ7hOIdZ+5FszM/T0msIqqgGpPktN9PyP/GdWTx0VPF3W63XcwceuXYqszgInNsq6AILj8QF2L9pGGOlHe8R7PR3OOBW0SnwNRuZ+gulEwS6tqF1C6/Z7u8OkcxHndH1tQTT2L7LQF6sI4HjqWOYimZkZ7Kp0de4pjnPHuBvkhCqOB7/zUYF5jYpYlAZgi273bRQyktBm6fcfarliwUCt3DFUgxgRI+qPf5ycivHoaczuB01ggGuKuLKKECgSwyp+4EdxrEiOH1kFlwS2u0PitambkxWTrLhs4Kqpk6/hp9AGdOYDXlhJEBnAebByUpHo7AEjyLrdKmbqmjWmVGOP8QKGTxaw+/rSITauNVZMYKThrvUAyGOm7Z43Pb16DtqmKCqfA9OMCD2L6MtXiYwUxuVv+hFGtOhBSwk2BqSXwASZ1gt9DoWFLTWto9LKSfpLCrJAyRe4pJWJLbrOdEwSyswRt6Ego+RyvI5rgWH/zJ8xN0cokcGohne7Gn+QsbW4KJ/JbtI9RDIBdBwY71wQ/2QFxUcWfbav2rTgD0MYRulKTJwmng=
+  on:
+    tags: true
+    condition: $DJANGO = '>=3.0,<3.1'
+    python: 3.6
+    repo: bartonip/django-cached-fields
+  distributions: sdist bdist_wheel
+notifications:
+  email: false

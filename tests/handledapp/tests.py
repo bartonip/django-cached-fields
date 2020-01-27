@@ -30,6 +30,12 @@ class TestCalculationOnCreate(TestCase):
         invoice.save()
         self.assertEqual(invoice.total, 9)
 
+class TestUpdateMultiply(TestCase):
+    pass
+
+class TestUpdateSQLKeyword(TestCase):
+    pass
+
 
 # class TestTriggers(TestCase):
 #     def setUp(self):
