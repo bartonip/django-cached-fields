@@ -23,7 +23,7 @@ VERSION = '0.1.0a2'
 # What packages are required for this module to be executed?
 REQUIRED = [
     # 'requests', 'maya', 'records',
-    'django>=1.11,<1.12,>=2.0,<2.1,>=2.1,<2.2,>=3.0,<3.1'
+    'django>=3.0,<3.1'
 ]
 
 # What packages are optional?
