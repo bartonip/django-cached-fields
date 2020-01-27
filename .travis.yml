@@ -38,7 +38,6 @@ before_script:
   - mysql -e 'create database test_project'
   - psql -c 'create database test_project;' -U postgres;
 script:
-  - flake8
   - coverage run tests/manage.py test 
 after_success:
   - coverage report
