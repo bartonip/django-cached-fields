@@ -18,11 +18,12 @@ URL = 'https://github.com/bartonip/django-cached-fields'
 EMAIL = 'notbartonip@gmail.com'
 AUTHOR = 'Barton Ip'
 REQUIRES_PYTHON = '>=3.0.0'
-VERSION = '0.1.0a0'
+VERSION = '0.1.0a2'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
     # 'requests', 'maya', 'records',
+    'django>=1.11,<1.12,>=2.0,<2.1,>=2.1,<2.2,>=3.0,<3.1'
 ]
 
 # What packages are optional?
@@ -207,8 +208,17 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
+        'Development Status :: 3 - Alpha',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     # $ setup.py publish support.
     cmdclass={
