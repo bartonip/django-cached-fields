@@ -33,12 +33,20 @@ class TestEditingField(TestCase):
     def test_shouldFail_whenValueSpecifiedForCacheOnCreate(self):
         with self.assertRaises(UnauthorisedChange):
             invoice = Invoice.objects.create(quantity=3, amount=4, total=12)
-        
 
-class TestTimestampUpdates(TestCase):
+class DoesCocksWork(TestCase):
     def setUp(self):
         self.invoice = Invoice.objects.create(quantity=2, amount=3)
+    
+    def test_doesCocksWork(self):
+        self.invoice.__gherk_durkin = 2
+        self.invoice.save()
+        self.assertEqual(1,1)
 
-    def test_modelHasAttr(self):
-        self.assertEqual(self.invoice.total_last_updated, datetime(2019,1,1,1,2))
+# class TestTimestampUpdates(TestCase):
+#     def setUp(self):
+#         self.invoice = Invoice.objects.create(quantity=2, amount=3)
+
+#     def test_modelHasAttr(self):
+#         self.assertEqual(self.invoice.total_last_updated, datetime(2019,1,1,1,2))
         

@@ -6,11 +6,13 @@ from django.utils import timezone
 from django.utils.functional import curry
 
 from .exceptions import CalculationMethodMissing
+from .mixins import CachedFieldsMixin
+
+def save(self, *args, **kwargs):
+    print("arse")
+    super(self.__class__, self).save(*args, **kwargs)
 
 class CachedFieldMixin(object):
-    """
-    Nah
-    """
 
     def __init__(self, method, field_triggers=[], signals=[], timeout=None, *args, **kwargs):
         self.method = method
@@ -30,7 +32,7 @@ class CachedFieldMixin(object):
         type_field.contribute_to_class(cls, self.name)
 
         # Timestamp field to log when changes happen
-        last_update_field_name = "{}_last_updated".format(self.name)
+        last_update_field_name = "{}_changed".format(self.name)
         last_update = models.DateTimeField(null=True)
         # setattr(cls, last_update_field_name, last_update)
         last_update.contribute_to_class(cls, last_update_field_name)
@@ -48,11 +50,9 @@ class CachedFieldMixin(object):
 
         setattr(cls, "_dcf_trigger_params", trigger_data)
 
-        # Link Signals
-        self.receivers = []
-        for signal in self.signals:
-            signal.set_callback(self.method)
-            signal.decorated_callback()
+        # Silently inject mixin ensuring it hasn't already been injected
+        if CachedFieldsMixin not in cls.__bases__:
+            cls.__bases__ = (CachedFieldsMixin, ) + cls.__bases__ 
 
 
 class CachedBigIntegerField(CachedFieldMixin, models.BigIntegerField):
