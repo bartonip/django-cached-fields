@@ -8,6 +8,6 @@ class OrderSummary(models.Model):
 
 class Service(models.Model):
     total = models.IntegerField()
-    order = models.ForeignKey(OrderSummary, related_name="services")
+    order = models.ForeignKey(OrderSummary, related_name="services", on_delete=models.CASCADE)
     
     

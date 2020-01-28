@@ -18,7 +18,7 @@ URL = 'https://github.com/bartonip/django-cached-fields'
 EMAIL = 'notbartonip@gmail.com'
 AUTHOR = 'Barton Ip'
 REQUIRES_PYTHON = '>=3.0.0'
-VERSION = '0.1.1a0'
+VERSION = '0.1.1'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
