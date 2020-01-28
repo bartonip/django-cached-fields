@@ -8,7 +8,7 @@ class Item(models.Model):
     price = models.IntegerField()
 
 class Invoice(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="invoices")
     quantity = models.IntegerField()
     total = CachedIntegerField(InvoiceSignalHandler)
 

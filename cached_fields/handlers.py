@@ -64,11 +64,11 @@ class CachedFieldSignalHandler(object):
         else:
             return class_name
 
-    def propogate_signal(self, signal, sender, instance, *args, **kwargs):
-        self.run_method(instance, self.methods[self.get_class(sender)])
+    def propogate_signal(self, signal, sender, instance, save=False, *args, **kwargs):
+        self.run_method(instance, self.methods[self.get_class(sender)], save=save)
         
 
-    def run_method(self, instance, callback):
+    def run_method(self, instance, callback, save=False):
         """
             self.run_method(instance, self.methods[sender], prefetch_related=[])
             If instance is of type QuerySet, and its elements are of type sender, apply prefetch to it.
@@ -79,15 +79,21 @@ class CachedFieldSignalHandler(object):
         if isinstance(instance, QuerySet):
             instance = instance.prefetch_related(*prefetch)
             for i in instance:
-                return self.execute(i, callback)
+                self.execute(i, callback, save=save)
         elif isinstance(instance, (list, tuple,)):
             for i in instance:
-                return self.execute(i, callback)
+                self.execute(i, callback, save=save)
         else:
-            return self.execute(instance, callback)
+            self.execute(instance, callback, save=save)
 
-    def execute(self, instance, callback):
+    def execute(self, instance, callback, save=False):
         result = callback(instance)
-        instance._set_cache_value(self.field, result)
-        instance._commit_values_to_cache()
+        if isinstance(result, self.parent_class) or isinstance(result, QuerySet):
+            self.propogate_signal(None, self.parent_class, result, save=True)
+        else:
+            instance._set_cache_value(self.field, result)
+            instance._commit_values_to_cache()
+            if save:
+                instance.save()
+
 

@@ -7,8 +7,9 @@ class InvoiceSignalHandler(CachedFieldSignalHandler):
     def handle_calculate_total(instance):
         return instance.item.price * instance.quantity
 
-    def gherk(self):
-        pass
+    @for_class('handledapp.Item')
+    def handle_calculate_total_from_item(instance):
+        return instance.invoices.all()
 
 class CarrotMultipleHandler(CachedFieldSignalHandler):
     @for_class('handledapp.Carrot')
