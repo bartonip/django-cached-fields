@@ -10,10 +10,6 @@ from .handlers import CachedFieldSignalHandler
 
 import types
 
-def save(self, *args, **kwargs):
-    print("arse")
-    super(self.__class__, self).save(*args, **kwargs)
-
 class CachedFieldMixin(object):
 
     def __init__(self, method, field_triggers=[], signals=[], timeout=None, *args, **kwargs):

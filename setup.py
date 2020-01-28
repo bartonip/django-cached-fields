@@ -18,12 +18,12 @@ URL = 'https://github.com/bartonip/django-cached-fields'
 EMAIL = 'notbartonip@gmail.com'
 AUTHOR = 'Barton Ip'
 REQUIRES_PYTHON = '>=3.0.0'
-VERSION = '0.1.0a2'
+VERSION = '0.1.1a0'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
     # 'requests', 'maya', 'records',
-    'django>=3.0,<3.1'
+    'django'
 ]
 
 # What packages are optional?

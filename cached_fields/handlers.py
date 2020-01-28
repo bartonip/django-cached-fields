@@ -30,13 +30,13 @@ def for_class(cls, signals=[pre_save], prefetch=[], *args, **kwargs):
             obj = None
 
             def __call__(self, *args, **kwargs):
-                return self.obj.__class__.update_cache(decorated(self, *args, **kwargs))
+                return decorated(self.obj, *args, **kwargs)
 
             def initialise(self, obj, *args, **kwargs):
-                class_name = obj.__class__.get_class(cls)
-                obj.__class__.methods[class_name] = (decorated, prefetch,)
-                obj.__class__.signals[class_name] = signals
-                receiver(signals, sender=class_name)(obj.__class__.propogate_signal)
+                class_name = obj.get_class(cls)
+                obj.methods[class_name] = (decorated, prefetch,)
+                obj.signals[class_name] = signals
+                receiver(signals, sender=class_name)(obj.propogate_signal)
                 self.obj = obj
 
         return wropper()
@@ -44,36 +44,31 @@ def for_class(cls, signals=[pre_save], prefetch=[], *args, **kwargs):
     return return_function
 
 class CachedFieldSignalHandler(object):
-    methods = {}
-    signals = {}
-
     def __init__(self, field, cls, *args, **kwargs):
-        self.__class__.field = field
-        self.__class__.parent_class = cls
-        method_list = self.__dir__()
+        self.field = field
+        self.parent_class = cls
+        self.methods = {}
+        self.signals = {}
+        method_list = super(CachedFieldSignalHandler, self).__dir__()
         for method in method_list:
             if method[:7] == "handle_":
                 getattr(self, method).initialise(self)
         super(CachedFieldSignalHandler, self).__init__(*args, **kwargs)
 
-    @classmethod
-    def update_cache(cls, value):
+    def update_cache(self, value):
         return value
 
-    @classmethod
-    def get_class(cls, class_name):
+    def get_class(self, class_name):
         if not isinstance(class_name, str):
             return "{}.{}".format(class_name._meta.app_label, class_name.__name__)
         else:
             return class_name
 
-    @classmethod
-    def propogate_signal(cls, signal, sender, instance, *args, **kwargs):
-        cls.run_method(instance, cls.methods[cls.get_class(sender)])
+    def propogate_signal(self, signal, sender, instance, *args, **kwargs):
+        self.run_method(instance, self.methods[self.get_class(sender)])
         
 
-    @classmethod
-    def run_method(cls, instance, callback):
+    def run_method(self, instance, callback):
         """
             self.run_method(instance, self.methods[sender], prefetch_related=[])
             If instance is of type QuerySet, and its elements are of type sender, apply prefetch to it.
@@ -84,26 +79,15 @@ class CachedFieldSignalHandler(object):
         if isinstance(instance, QuerySet):
             instance = instance.prefetch_related(*prefetch)
             for i in instance:
-                return cls.execute(i, callback)
+                return self.execute(i, callback)
         elif isinstance(instance, (list, tuple,)):
             for i in instance:
-                return cls.execute(i, callback)
+                return self.execute(i, callback)
         else:
-            return cls.execute(instance, callback)
+            return self.execute(instance, callback)
 
-    @classmethod
-    def execute(cls, instance, callback):
+    def execute(self, instance, callback):
         result = callback(instance)
-        instance._set_cache_value(cls.field, result)
+        instance._set_cache_value(self.field, result)
         instance._commit_values_to_cache()
 
-    def provision_signals(self):
-        for class_name, signal in self.signals:
-            self.connect_receiver(class_name, signal, self.methods[class_name])
-
-    def as_handler(self, *args, **kwargs):
-        """
-            1. Connect all signals
-        """
-        # cls.provision_signals()
-        pass
