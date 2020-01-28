@@ -179,6 +179,35 @@ class Migrate(Command):
     def finalize_options(self):
         pass
 
+class StartApp(Command):
+    description = 'Run the django test suite from the tests dir.'
+    user_options = [('appname=', None, "Specify the django appname")]
+    extra_env = {}
+    extra_args = []
+
+    def run(self):
+        for env_name, env_value in self.extra_env.items():
+            os.environ[env_name] = str(env_value)
+        print(self.appname)
+        this_dir = os.getcwd()
+        testproj_dir = os.path.join(this_dir, 'tests')
+        os.chdir(testproj_dir)
+        sys.path.append(testproj_dir)
+        from django.core.management import execute_from_command_line
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+        prev_argv = list(sys.argv)
+        try:
+            sys.argv = [__file__, 'startapp', self.appname] + self.extra_args
+            execute_from_command_line(argv=sys.argv)
+        finally:
+            sys.argv = prev_argv
+
+    def initialize_options(self):
+        self.appname = ""
+
+    def finalize_options(self):
+        pass
+
 # Where the magic happens:
 setup(
     name=NAME,
@@ -225,7 +254,8 @@ setup(
         'upload': UploadCommand,
         'test': RunTests,
         'makemigrations': MakeMigrations,
-        'migrate': Migrate
+        'migrate': Migrate,
+        'startapp': StartApp
     },
 )
 

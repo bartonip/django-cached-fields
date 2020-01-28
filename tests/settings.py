@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'someapp',
-    'handledapp'
+    'handledapp',
+    'reverseapp',
+    'prefetchapp'
 ]
 
 MIDDLEWARE = [

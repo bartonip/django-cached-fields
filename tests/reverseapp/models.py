@@ -1,7 +1,8 @@
 from django.db import models
 from cached_fields.fields import CachedIntegerField
 from cached_fields.mixins import CachedFieldsMixin
-from handledapp.handlers import InvoiceSignalHandler, CarrotAdditionHandler, CarrotMultipleHandler
+from reverseapp.handlers import InvoiceSignalHandler
+
 
 class Item(models.Model):
     name = models.CharField(max_length=12)
@@ -11,9 +12,3 @@ class Invoice(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="invoices")
     quantity = models.IntegerField()
     total = CachedIntegerField(InvoiceSignalHandler)
-
-class Carrot(models.Model):
-    value_one = models.IntegerField()
-    value_two = models.IntegerField()
-    multiple = CachedIntegerField(CarrotMultipleHandler)
-    addition = CachedIntegerField(CarrotAdditionHandler)
